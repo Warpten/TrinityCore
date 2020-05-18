@@ -18,7 +18,6 @@
 #ifndef TRINITY_FOLLOWMOVEMENTGENERATOR_H
 #define TRINITY_FOLLOWMOVEMENTGENERATOR_H
 
-#include "AbstractFollower.h"
 #include "MovementGenerator.h"
 #include "Optional.h"
 #include "Timer.h"
@@ -26,12 +25,19 @@
 class PathGenerator;
 class Unit;
 
-class FollowMovementGenerator : public MovementGenerator, public AbstractFollower
+enum ReturnState
+{
+    RETURN_STATE_NONE = 0,
+    RETURN_STATE_RETURNING,
+    RETURN_STATE_RETURNED
+};
+
+class FollowMovementGenerator : public MovementGenerator
 {
 public:
     MovementGeneratorType GetMovementGeneratorType() const override { return FOLLOW_MOTION_TYPE; }
 
-    FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, bool alligntToTargetSpeed = false);
+    FollowMovementGenerator(Unit* target, float range, ChaseAngle angle, bool alligntToTargetSpeed = false, bool faceTarget = false);
     ~FollowMovementGenerator();
 
     void Initialize(Unit* owner) override;
@@ -39,15 +45,24 @@ public:
     bool Update(Unit* owner, uint32 diff) override;
     void Finalize(Unit* owner) override;
 
+    void SetFollowParameters(float distance, float relativeAngle);
+
 private:
-    static constexpr uint32 FOLLOW_MOVEMENT_INTERVAL = 800; // sniffed (2 batch update cycles)
+    void LaunchMovement(Unit* owner, Unit* target, bool stopped);
+
+    static constexpr uint32 FOLLOW_MOVEMENT_INTERVAL = 400; // sniffed (1 batch update cycle)
+    static constexpr uint32 ALLING_MOVEMENT_INTERVAL = 2000; // sniffed (5 batch update cycles)
     // static inline const when?
 
-    float const _range;
+    Unit* _target;
+    float _range;
     bool const _useTargetSpeed;
-    bool _hasStopped;
-    ChaseAngle const _angle;
+    bool const _faceTarget;
+    ReturnState _returnState;
+    ChaseAngle _angle;
     TimeTrackerSmall _followMovementTimer;
+    TimeTrackerSmall _allignMovementTimer;
+    TimeTrackerSmall _facingMovementTimer;
 };
 
 #endif

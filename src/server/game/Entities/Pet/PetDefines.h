@@ -78,8 +78,6 @@ enum PetTalk
     PET_TALK_ATTACK         = 1
 };
 
-#define PET_FOLLOW_DIST  1.0f
-#define PET_FOLLOW_ANGLE float(M_PI / 2)
-#define COMPANION_FOLLOW_ANGLE float(M_PI)
+constexpr float COMPANION_FOLLOW_DISTANCE = 2.5f;
 
 #endif

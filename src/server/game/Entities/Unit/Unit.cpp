@@ -16,7 +16,6 @@
  */
 
 #include "Unit.h"
-#include "AbstractFollower.h"
 #include "Battlefield.h"
 #include "BattlefieldMgr.h"
 #include "Battleground.h"
@@ -32,6 +31,7 @@
 #include "CreatureAI.h"
 #include "CreatureAIImpl.h"
 #include "CreatureGroups.h"
+#include "FollowerHandler.h"
 #include "Formulas.h"
 #include "GameTime.h"
 #include "GridNotifiersImpl.h"
@@ -326,7 +326,8 @@ Unit::Unit(bool isWorldObject) :
     i_AI(nullptr), i_disabledAI(nullptr), m_AutoRepeatFirstCast(false), m_procDeep(0),
     m_removedAurasCount(0), i_motionMaster(new MotionMaster(this)), m_ThreatManager(this),
     m_vehicle(nullptr), m_vehicleKit(nullptr), m_unitTypeMask(UNIT_MASK_NONE), m_Diminishing(),
-    m_HostileRefManager(this), _lastDamagedTime(0), m_spellHistory(new SpellHistory(this))
+    m_HostileRefManager(this), _lastDamagedTime(0), m_spellHistory(new SpellHistory(this)),
+    _followerHandler(new FollowerHandler(this))
 {
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
@@ -443,6 +444,7 @@ Unit::~Unit()
     delete m_charmInfo;
     delete movespline;
     delete m_spellHistory;
+    delete _followerHandler;
 
     ASSERT(!m_duringRemoveFromWorld);
     ASSERT(!m_attacking);
@@ -9183,10 +9185,42 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate)
     Movement::PacketSender(this, moveTypeToOpcode[mtype][0], moveTypeToOpcode[mtype][1], NULL_OPCODE, &extra).Send();
 }
 
-void Unit::RemoveAllFollowers()
+void Unit::FollowTarget(Unit* target)
 {
-    while (!m_followingMe.empty())
-        (*m_followingMe.begin())->SetTarget(nullptr);
+    if (!target)
+        return;
+
+    // Determine follow configuration
+    bool catchUpToTarget = false;   // unit will allign to the target speed and catches up to the target automatically
+    bool faceTarget = false;        // unit will always face the target. Companions only
+    bool isCompanion = false;
+    float angle = 0.f;
+
+    if (TempSummon* summon = ToTempSummon())
+    {
+        if (summon->IsPet())
+            catchUpToTarget = true;
+
+        if (SummonPropertiesEntry const* properties = summon->m_Properties)
+        {
+            // Companions (minipets) always face their follow target
+            if (properties->Slot == SUMMON_SLOT_MINIPET)
+            {
+                angle = float(M_PI);
+                faceTarget = true;
+                isCompanion = true;
+            }
+
+            // Wild summons and summoned vehicles do not catch up to players
+            if (properties->Control != SUMMON_CATEGORY_WILD && properties->Control != SUMMON_CATEGORY_VEHICLE)
+                catchUpToTarget = true;
+        }
+    }
+
+    if (!isCompanion)
+        target->GetFollowerHandler()->AddFollower(this, catchUpToTarget);
+    else
+        GetMotionMaster()->MoveFollow(target, COMPANION_FOLLOW_DISTANCE, angle, catchUpToTarget, faceTarget);
 }
 
 void Unit::setDeathState(DeathState s)
@@ -10402,8 +10436,7 @@ void Unit::RemoveFromWorld()
         RemoveAllControlled();
 
         RemoveAreaAurasDueToLeaveWorld();
-
-        RemoveAllFollowers();
+        GetFollowerHandler()->RemoveAllFollowers();
 
         if (GetCharmerGUID())
         {

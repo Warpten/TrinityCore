@@ -2157,29 +2157,8 @@ public:
                     handler->SendSysMessage(LANG_MOVEGENS_CONFUSED);
                     break;
                 case CHASE_MOTION_TYPE:
-                {
-                    Unit* target = static_cast<ChaseMovementGenerator const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
-                        handler->SendSysMessage(LANG_MOVEGENS_CHASE_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
-                    else
-                        handler->PSendSysMessage(LANG_MOVEGENS_CHASE_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
-                    break;
-                }
                 case FOLLOW_MOTION_TYPE:
-                {
-                    Unit* target = static_cast<FollowMovementGenerator const*>(movementGenerator)->GetTarget();
-
-                    if (!target)
-                        handler->SendSysMessage(LANG_MOVEGENS_FOLLOW_NULL);
-                    else if (target->GetTypeId() == TYPEID_PLAYER)
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_PLAYER, target->GetName().c_str(), target->GetGUID().GetCounter());
-                    else
-                        handler->PSendSysMessage(LANG_MOVEGENS_FOLLOW_CREATURE, target->GetName().c_str(), target->GetGUID().GetCounter());
                     break;
-                }
                 case HOME_MOTION_TYPE:
                 {
                     if (unit->GetTypeId() == TYPEID_UNIT)

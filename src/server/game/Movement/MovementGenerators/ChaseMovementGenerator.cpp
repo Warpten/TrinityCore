@@ -32,7 +32,7 @@ static bool IsMutualChase(Unit* owner, Unit* target)
     if (!gen || gen->GetMovementGeneratorType() != CHASE_MOTION_TYPE)
         return false;
 
-    return (static_cast<ChaseMovementGenerator const*>(gen)->GetTarget() == owner);
+    return (static_cast<ChaseMovementGenerator const*>(gen)->_target == owner);
 }
 
 static void DoMovementInform(Unit* owner, Unit* target)
@@ -72,7 +72,7 @@ inline float GetChaseRange(Unit const* owner, Unit const* target)
     return hitboxSum;
 }
 
-ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle) : AbstractFollower(ASSERT_NOTNULL(target)), _range(range), _angle(angle) { }
+ChaseMovementGenerator::ChaseMovementGenerator(Unit* target, float range, Optional<ChaseAngle> angle) : _target(target), _range(range), _angle(angle) { }
 ChaseMovementGenerator::~ChaseMovementGenerator() = default;
 
 void ChaseMovementGenerator::Initialize(Unit* owner)
@@ -91,7 +91,7 @@ bool ChaseMovementGenerator::Update(Unit* owner, uint32 diff)
         return false;
 
     // our target might have gone away
-    Unit* const target = GetTarget();
+    Unit* const target = _target;
     if (!target || !target->IsInWorld())
         return false;
 

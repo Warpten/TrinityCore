@@ -4614,7 +4614,7 @@ void Spell::EffectResurrectPet(SpellEffIndex /*effIndex*/)
         // Reposition the pet's corpse before reviving so as not to grab aggro
         // We can use a different, more accurate version of GetClosePoint() since we have a pet
         float x, y, z; // Will be used later to reposition the pet if we have one
-        player->GetClosePoint(x, y, z, pet->GetCombatReach(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+        player->GetClosePoint(x, y, z, pet->GetCombatReach(), 3.f, float(M_PI_2));
         pet->NearTeleportTo(x, y, z, player->GetOrientation());
         pet->Relocate(x, y, z, player->GetOrientation()); // This is needed so SaveStayPosition() will get the proper coords.
     }
@@ -5203,7 +5203,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
 
     // relocate
     float px, py, pz;
-    unitTarget->GetClosePoint(px, py, pz, pet->GetCombatReach(), PET_FOLLOW_DIST, pet->GetFollowAngle());
+    unitTarget->GetClosePoint(px, py, pz, pet->GetCombatReach(), 3.f, float(M_PI_2));
     pet->Relocate(px, py, pz, unitTarget->GetOrientation());
 
     // add to world
