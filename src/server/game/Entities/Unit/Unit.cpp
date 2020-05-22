@@ -9191,9 +9191,9 @@ void Unit::FollowTarget(Unit* target)
         return;
 
     // Determine follow configuration
-    bool catchUpToTarget = false;   // unit will allign to the target speed and catches up to the target automatically
-    bool faceTarget = false;        // unit will always face the target. Companions only
-    bool isCompanion = false;
+    bool catchUpToTarget        = false;    // unit will allign to the target speed and catches up to the target automatically
+    bool faceTarget             = false;    // unit will always face the target. Companions only
+    bool independendFollower    = false;    // unit will follow the target independed of other followers
     float angle = 0.f;
 
     if (TempSummon* summon = ToTempSummon())
@@ -9204,20 +9204,22 @@ void Unit::FollowTarget(Unit* target)
         if (SummonPropertiesEntry const* properties = summon->m_Properties)
         {
             // Companions (minipets) always face their follow target
-            if (properties->Slot == SUMMON_SLOT_MINIPET)
+            if (properties->Slot == SUMMON_SLOT_MINIPET || properties->Slot == SUMMON_SLOT_QUEST)
             {
                 angle = float(M_PI);
-                faceTarget = true;
-                isCompanion = true;
+                independendFollower = true;
+
+                if (properties->Slot == SUMMON_SLOT_MINIPET)
+                    faceTarget = true;
             }
 
-            // Wild summons and summoned vehicles do not catch up to players
+            // Wild summons and summoned vehicles do not catch up to their follow target
             if (properties->Control != SUMMON_CATEGORY_WILD && properties->Control != SUMMON_CATEGORY_VEHICLE)
                 catchUpToTarget = true;
         }
     }
 
-    if (!isCompanion)
+    if (!independendFollower)
         target->GetFollowerHandler()->AddFollower(this, catchUpToTarget);
     else
         GetMotionMaster()->MoveFollow(target, COMPANION_FOLLOW_DISTANCE, angle, catchUpToTarget, faceTarget);
