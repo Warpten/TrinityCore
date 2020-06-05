@@ -48,7 +48,6 @@
 #include "SocialMgr.h"
 #include "Transport.h"
 #include "Vehicle.h"
-#include "WardenMac.h"
 #include "WardenWin.h"
 #include "World.h"
 #include "WorldPacket.h"
@@ -1144,12 +1143,6 @@ void WorldSession::InitWarden(BigNumber* k, std::string const& os)
     {
         _warden = new WardenWin();
         _warden->Init(this, k);
-    }
-    else if (os == "OSX")
-    {
-        // Disabled as it is causing the client to crash
-        // _warden = new WardenMac();
-        // _warden->Init(this, k);
     }
 }
 
