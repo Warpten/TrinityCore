@@ -3829,7 +3829,6 @@ CREATE TABLE `warden_checks` (
   `type` tinyint(3) UNSIGNED NULL DEFAULT NULL,
   `flags` int(10) NOT NULL DEFAULT 0,
   `enabled` tinyint(1) NOT NULL DEFAULT 0,
-  `platform` varchar(5) NOT NULL,
   `data0` varchar(255) DEFAULT NULL,
   `data1` varchar(255) DEFAULT NULL,
   `address` int(10) UNSIGNED NULL DEFAULT NULL,
@@ -3837,7 +3836,7 @@ CREATE TABLE `warden_checks` (
   `result` varchar(24) DEFAULT NULL,
   `comment` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=787 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
