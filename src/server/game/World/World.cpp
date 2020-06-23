@@ -2289,6 +2289,9 @@ void World::SetInitialWorldSettings()
     TC_LOG_INFO("server.loading", "Loading Warden Checks...");
     sWardenMgr->LoadWardenChecks();
 
+    TC_LOG_INFO("server.loading", "Loading Warden Modules...");
+    sWardenMgr->LoadWardenModules();
+
     TC_LOG_INFO("server.loading", "Loading Warden Keys...");
     sWardenMgr->LoadWardenKeys();
 
